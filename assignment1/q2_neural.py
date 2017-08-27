@@ -22,6 +22,7 @@ def forward_backward_prop(data, labels, params, dimensions):
     dimensions -- A tuple of input dimension, number of hidden units
                   and output dimension
     """
+    #h = sigmoid(xW1 + b1); yˆ = softmax(hW2 + b2)
 
     ### Unpack network parameters (do not modify)
     ofs = 0
@@ -35,9 +36,11 @@ def forward_backward_prop(data, labels, params, dimensions):
     ofs += H * Dy
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
-    ### YOUR CODE HERE: forward propagation
-    raise NotImplementedError
-    ### END YOUR CODE
+    
+    h = sigmoid(data*W1 + b1)
+    yh = softmax(h*W2 + b2)
+    
+    #gradW1 = 
 
     ### YOUR CODE HERE: backward propagation
     raise NotImplementedError
