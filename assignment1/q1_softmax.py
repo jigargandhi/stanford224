@@ -31,12 +31,20 @@ def softmax(x):
     if len(x.shape) > 1:
         # Matrix
         ### YOUR CODE HERE
-        raise NotImplementedError
+        m,n= x.shape
+        x = x - np.max(x,axis = 1).reshape((m,1))
+        x = np.exp(x)
+        sum_x = np.sum(x, axis = 1)
+        divisor = np.tile(sum_x, (n,1)).T
+        x = x / divisor
+        
         ### END YOUR CODE
     else:
         # Vector
         ### YOUR CODE HERE
-        raise NotImplementedError
+        maxV = np.max(x)
+        x = np.exp(x-maxV)
+        x = np.divide(x, np.sum(x))
         ### END YOUR CODE
 
     assert x.shape == orig_shape
@@ -48,25 +56,25 @@ def test_softmax_basic():
     Some simple tests to get you started.
     Warning: these are not exhaustive.
     """
-    print "Running basic tests..."
+    print ("Running basic tests...")
     test1 = softmax(np.array([1,2]))
-    print test1
+    print (test1)
     ans1 = np.array([0.26894142,  0.73105858])
     assert np.allclose(test1, ans1, rtol=1e-05, atol=1e-06)
 
     test2 = softmax(np.array([[1001,1002],[3,4]]))
-    print test2
+    print (test2)
     ans2 = np.array([
         [0.26894142, 0.73105858],
         [0.26894142, 0.73105858]])
     assert np.allclose(test2, ans2, rtol=1e-05, atol=1e-06)
 
     test3 = softmax(np.array([[-1001,-1002]]))
-    print test3
+    print (test3)
     ans3 = np.array([0.73105858, 0.26894142])
     assert np.allclose(test3, ans3, rtol=1e-05, atol=1e-06)
 
-    print "You should be able to verify these results by hand!\n"
+    print ("You should be able to verify these results by hand!\n")
 
 
 def test_softmax():
@@ -76,9 +84,17 @@ def test_softmax():
     This function will not be called by the autograder, nor will
     your tests be graded.
     """
-    print "Running your tests..."
+    print ("Running your tests...")
     ### YOUR CODE HERE
-    raise NotImplementedError
+    data = np.random.randn(20,10)
+    test1 = softmax(data)
+    
+    
+    newData= np.array([[1,2,3],[4,5,6]])
+    test1 = softmax(newData)
+    print(test1)
+    #ans1 = np.array([0.26894142,  0.73105858])
+    #assert np.allclose(test1, ans1, rtol=1e-05, atol=1e-06)
     ### END YOUR CODE
 
 
