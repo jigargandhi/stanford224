@@ -210,8 +210,9 @@ def word2vec_sgd_wrapper(word2vecModel, tokens, wordVectors, dataset, C,
     batchsize = 50
     cost = 0.0
     grad = np.zeros(wordVectors.shape)
+    print(wordVectors.shape)
     N = wordVectors.shape[0]
-    n= N/2
+    n= int(N/2)
     inputVectors = wordVectors[:n,:]
     outputVectors = wordVectors[n:,:]
     for i in range(batchsize):
@@ -227,8 +228,8 @@ def word2vec_sgd_wrapper(word2vecModel, tokens, wordVectors, dataset, C,
             centerword, C1, context, tokens, inputVectors, outputVectors,
             dataset, word2vecCostAndGradient)
         cost += c / batchsize / denom
-        grad[:N/2, :] += gin / batchsize / denom
-        grad[N/2:, :] += gout / batchsize / denom
+        grad[:n, :] += gin / batchsize / denom
+        grad[n:, :] += gout / batchsize / denom
 
     return cost, grad
 
