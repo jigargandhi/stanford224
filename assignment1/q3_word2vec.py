@@ -114,7 +114,7 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     vc = predicted[target]
     op = outputVectors[target]
     minus = (1-sigmoid(vc.dot(op.T)))
-    gradPred = minus.T.dot(op)
+    gradPred = minus*op
     grad = minus.T.dot(vc)
     for i,val in enumerate(indices):
         if i==0:

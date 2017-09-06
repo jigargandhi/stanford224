@@ -49,8 +49,16 @@ def getSentenceFeatures(tokens, wordVectors, sentence):
     sentVector = np.zeros((wordVectors.shape[1],))
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    count=0
+    for word in sentence:
+        idx = tokens[word]
+        vect = wordVectors[idx,:].T
+        count+=1
+        sentVector+=vect
     ### END YOUR CODE
+    
+    if count !=0:
+        sentVector = sentVector/count
 
     assert sentVector.shape == (wordVectors.shape[1],)
     return sentVector
@@ -164,7 +172,7 @@ def main(args):
     nTrain = len(trainset)
     trainFeatures = np.zeros((nTrain, dimVectors))
     trainLabels = np.zeros((nTrain,), dtype=np.int32)
-    for i in xrange(nTrain):
+    for i in range(nTrain):
         words, trainLabels[i] = trainset[i]
         trainFeatures[i, :] = getSentenceFeatures(tokens, wordVectors, words)
 
@@ -173,7 +181,7 @@ def main(args):
     nDev = len(devset)
     devFeatures = np.zeros((nDev, dimVectors))
     devLabels = np.zeros((nDev,), dtype=np.int32)
-    for i in xrange(nDev):
+    for i in range(nDev):
         words, devLabels[i] = devset[i]
         devFeatures[i, :] = getSentenceFeatures(tokens, wordVectors, words)
 
@@ -182,7 +190,7 @@ def main(args):
     nTest = len(testset)
     testFeatures = np.zeros((nTest, dimVectors))
     testLabels = np.zeros((nTest,), dtype=np.int32)
-    for i in xrange(nTest):
+    for i in range(nTest):
         words, testLabels[i] = testset[i]
         testFeatures[i, :] = getSentenceFeatures(tokens, wordVectors, words)
 
