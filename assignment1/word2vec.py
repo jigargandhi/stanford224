@@ -3,30 +3,50 @@ import math
 from q2_sigmoid import sigmoid, sigmoid_grad
 from q2_gradcheck import gradcheck_naive
 import re
+import pickle
+from pathlib import Path
 class Unigram:
     def __init__(self, freqDist, index):
         self.freqDist= freqDist
         self.table=[]
         self.index=index
+        self.fileName = "unigram.pkl"
     
     def fillUnigramTable(self):
-        length = len(self.freqDist)
+        print("Filling Unigram table")
+        
+        if Path(self.fileName).exists():
+            print("picking up from unigram.pkl file")
+            with open(self.fileName,'rb') as f:
+                self.table = pickle.load(f)
+            return
+        else:
+            print("Calculating Manually")
         power = 0.75
-        table_size = int(1e8)
+        table_size = int(1e7)
         table = np.zeros(table_size, dtype=np.uint32)
-        Z = sum([math.pow(e, power) for e in self.freqDist])
+        Z = sum([math.pow(self.freqDist[e], power) for e in self.freqDist])
         p=0
         i=0
+        #stupidest way to fill unigram table
+        #alternate way project the probability to a number , create an array of index and append the array
         for j, unigram in enumerate(self.freqDist):
-            p+=float(math.pow(unigram,power))/Z
+            
+            p+=float(math.pow(self.freqDist[unigram],power))/Z
             while i<table_size and float(i)/table_size < p:
-                table[i] = self.index.index(j)
+                table[i] = self.index.index(unigram)
                 i+=1
+            
+            if i%1000 ==0:
+                print("Filling progress: ",i)
         self.table= table
+        
+        with open(self.fileName, 'wb') as f:
+            pickle.dump(self.table, f)
     
     def sample(self,count):
         indices = np.random.randint(low=0, high=len(self.table), size=count)
-        return [self.table[i] for i in indices]
+        return [self.table[i]-1 for i in indices]
 class Word2Vec:
     """Word2Vec models of skipgram and cbow with negative sampling"""
     def __init__(self, corpus, d = 10, window = 3):
@@ -40,8 +60,10 @@ class Word2Vec:
         self.b1 = np.random.rand(self.tokensize,d)
         self.U = np.random.rand(self.tokensize, d)
         self.b2 = np.random.rand(self.tokensize,d)
-        self.rate = 0.005
+        self.rate = 0.05
         self.unigram = Unigram(self.freq,self.tokens)
+        self.unigram.fillUnigramTable()
+        self.K = 4
         
     def preprocess(self):
          
@@ -65,7 +87,7 @@ class Word2Vec:
             arr = [i for i in range(index+1, index+self.window+1)]
         else:
             val = np.array((2*self.window, self.tokensize), dtype= float)
-            arr = [i for i in range(index-self.window, index + self.window +1) if i != index]
+            arr = [i for i in range(index-self.window, index + self.window +1) if i != index and i <self.tokensize]
         
         return arr
     
@@ -76,29 +98,72 @@ class Word2Vec:
         return x.T
     
     def softmaxCostAndGradient(self, idx, targetIdx, negativeSample):
-        X = self.getVector(self.words[idx])
+        if negativeSample ==None:
+            return
         V = self.V[idx,:] #d*1
-        labels = [target]+negativeSample
+        labels = [targetIdx]+negativeSample
         
-
+        directions = [1]+[-1 for i in negativeSample]
+        
+        cost = 0
+        gradCenter = np.zeros_like(V)
+        gradOutput = np.zeros_like(V)
+        for idx, label in enumerate(labels):
+            
+            u_o_idx = self.U[label,:]
+            
+            uovc = u_o_idx.T.dot(V)
+            print(V, u_o_idx, uovc)
+            sigmoid = self.sigmoid(directions[idx]*uovc)
+            print(sigmoid)
+            delt_c = (sigmoid+1)*u_o_idx
+            delt_o = (1-sigmoid)*V
+            cost = cost + np.log(sigmoid)
+            if idx==0:
+                gradCenter = delt_c
+                gradOutput = delt_o
+            else:
+                gradCenter -= delt_c
+                gradOutput += delt_o
+                
+        return cost,labels, gradCenter, gradOutput
             
         
     
     def train(self):
-        for i in range(5000):
+        print("Training started")
+        for i in range(1):
+            print("Starting iteration")
+            cost = 0
             for idx, val in enumerate(self.words):
-                for window in self.getWindowIdx(idx):
-                    cost, labels, gradUs, gradVs = self.softmaxCostAndGradient(idx, window, self.unigram.sample())
-                self.U = self.U - self.rate* gradU
-                self.V = self.V - self.rate*gradV
+                if idx > 15:
+                    break
+                for context in self.getWindowIdx(idx):
+                    dataId = self.tokens.index(val)
+                    neg = self.unigram.sample(self.K)
+                    newNeg = [self.tokens.index(self.words[k]) for k in neg]
+                    cost, labels, gradUs, gradVs = self.softmaxCostAndGradient(dataId, context, newNeg)
+                    #print(gradUs.shape)
+                    
+                    self.U[labels,:] += self.rate*gradUs
+                    self.V[labels,:] += self.rate*gradVs
+                    
+            self.saveWeights()
+            print ("Error: ",cost)
             
-            if i%1000 == True:
-                print ("Error: ",cost)
+        print("Training complete")
+    
+    def saveWeights(self):
+        with open("U.pkl","wb") as f:
+            pickle.dump(self.U,f)
+        
+        with open("V.pkl","wb") as f:
+            pickle.dump(self.V, f)
     
     def test(self):
         pass
     
-    def softmax(x):
+    def softmax(self,x):
         """Compute the softmax function for each row of the input x.
     
         It is crucial that this function is optimized for speed because
@@ -147,7 +212,7 @@ class Word2Vec:
         assert x.shape == orig_shape
         return x
 
-    def sigmoid(x):
+    def sigmoid(self, x):
         """
         Compute the sigmoid function for the input here.
     
@@ -157,12 +222,14 @@ class Word2Vec:
         Return:
         s -- sigmoid(x)
         """
+        
         s = x*-1
         s = 1/(1+np.exp(s))
+        #print(x, s)
         return s
 
 
-    def sigmoid_grad(s):
+    def sigmoid_grad(self,s):
         """
         Compute the gradient for the sigmoid function here. Note that
         for this implementation, the input s should be the sigmoid
@@ -180,6 +247,6 @@ class Word2Vec:
 
 if __name__=="__main__":
     w = Word2Vec(corpus = "utils/corpus/834-0.txt")
-    
+    w.train()
     
     
