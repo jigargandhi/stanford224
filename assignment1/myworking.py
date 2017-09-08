@@ -10,3 +10,6 @@ ar = ar - np.max(ar,axis = 1).reshape((3,1))
 ar = np.exp(ar)
 sum1 = np.sum(ar, axis = 1)
 ar = ar/ sum1
+
+
+import tensorflow as tf

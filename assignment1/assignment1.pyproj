@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{ccbe65a1-178b-4ae3-b907-c533ea60bda8}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>myworking.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId />
+    <InterpreterVersion />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="requirements.txt" />
+    <Content Include="utils\corpus\834-0.txt" />
+    <Content Include="utils\datasets\glove.6B.50d.txt" />
+    <Content Include="utils\datasets\stanfordSentimentTreebank\datasetSentences.txt" />
+    <Content Include="utils\datasets\stanfordSentimentTreebank\datasetSplit.txt" />
+    <Content Include="utils\datasets\stanfordSentimentTreebank\dictionary.txt" />
+    <Content Include="utils\datasets\stanfordSentimentTreebank\original_rt_snippets.txt" />
+    <Content Include="utils\datasets\stanfordSentimentTreebank\README.txt" />
+    <Content Include="utils\datasets\stanfordSentimentTreebank\sentiment_labels.txt" />
+    <Content Include="utils\datasets\stanfordSentimentTreebank\SOStr.txt" />
+    <Content Include="utils\datasets\stanfordSentimentTreebank\STree.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="myworking.py" />
+    <Compile Include="q1_softmax.py" />
+    <Compile Include="q2_gradcheck.py" />
+    <Compile Include="q2_neural.py" />
+    <Compile Include="q2_sigmoid.py" />
+    <Compile Include="q3_run.py" />
+    <Compile Include="q3_sgd.py" />
+    <Compile Include="q3_word2vec.py" />
+    <Compile Include="q4_sentiment.py" />
+    <Compile Include="tfSample.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="utils\glove.py" />
+    <Compile Include="utils\treebank.py" />
+    <Compile Include="utils\__init__.py" />
+    <Compile Include="word2vec.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="utils" />
+    <Folder Include="utils\corpus" />
+    <Folder Include="utils\datasets" />
+    <Folder Include="utils\datasets\stanfordSentimentTreebank" />
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>
