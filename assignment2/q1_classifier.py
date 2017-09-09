@@ -45,6 +45,8 @@ class SoftmaxModel(Model):
             self.labels_placeholder
         """
         ### YOUR CODE HERE
+        self.input_placeholder = tf.Placeholder(dtype= tf.float32, name='inputs_placeholder')
+        self.labels_placeholder = tf.Placeholder(dtype= tf.int32, name='labels_placeholder')
         ### END YOUR CODE
 
     def create_feed_dict(self, inputs_batch, labels_batch=None):
@@ -68,6 +70,7 @@ class SoftmaxModel(Model):
             feed_dict: The feed dictionary mapping from placeholders to values.
         """
         ### YOUR CODE HERE
+        feed_dict ={ 'input_placeholder': inputs_batch, 'labels_placeholder': labels_batch }
         ### END YOUR CODE
         return feed_dict
 
@@ -88,6 +91,9 @@ class SoftmaxModel(Model):
             pred: A tensor of shape (batch_size, n_classes)
         """
         ### YOUR CODE HERE
+        W = tf.Variable(np.zeros((self.config.n_classes, self.config.batch_size), dtype=np.float), name='W')
+        b = tf.Variable(np.zeros((self.config.n_classes, self.config.batch_size)))
+        pred = softmax(tf.matmul(self.W, self.input_placeholder)+b)
         ### END YOUR CODE
         return pred
 
