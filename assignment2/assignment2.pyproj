@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{fc1bc0f0-93fe-46b7-9326-35344c452fcd}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>q1_classifier.py</StartupFile>
+    <StartupFile>q2_parser_transitions.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>

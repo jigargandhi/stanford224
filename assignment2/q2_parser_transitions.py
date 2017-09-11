@@ -21,6 +21,9 @@ class PartialParse(object):
         self.sentence = sentence
 
         ### YOUR CODE HERE
+        self.stack =["ROOT"]
+        self.buffer = list(self.sentence)
+        self.dependencies = []
         ### END YOUR CODE
 
     def parse_step(self, transition):
@@ -31,6 +34,22 @@ class PartialParse(object):
                         and right-arc transitions.
         """
         ### YOUR CODE HERE
+        if transition == "S":
+            #shift: Remove an item from buffer and add it to stack
+            word = self.buffer.pop(0)
+            self.stack.append(word)
+            pass
+        elif transition == "LA":
+            head = self.stack.pop()
+            dependent = self.stack.pop()
+            self.dependencies.append((head, dependent))
+            self.stack.append(head)
+            pass
+        else: # transition == "RA":
+            dependent = self.stack.pop()
+            head = self.stack[-1]
+            self.dependencies.append((head, dependent))
+            pass
         ### END YOUR CODE
 
     def parse(self, transitions):
@@ -65,8 +84,23 @@ def minibatch_parse(sentences, model, batch_size):
     """
 
     ### YOUR CODE HERE
-    ### END YOUR CODE
+   
+    partial_parses = [PartialParse(sentence) for sentence in sentences]
+    unfinished_parses = [p for p in partial_parses]
+    start=0
+    while len(unfinished_parses)!=0:
+        batch = [unfinished_parses[0]]
+        transitions = model.predict(batch)        
+        for idx, transition in enumerate(transitions):
+            batch[idx].parse_step(transition)
+            if len(batch[idx].stack) == 1 and len(batch[idx].buffer) == 0:
+                del unfinished_parses[0]
 
+        start += batch_size
+
+    ### END YOUR CODE
+    dependencies =[parse.dependencies for parse in partial_parses]
+    #print(dependencies)
     return dependencies
 
 
@@ -120,10 +154,32 @@ class DummyModel:
     the sentence is "right", "left" if otherwise.
     """
     def predict(self, partial_parses):
-        return [("RA" if pp.stack[1] is "right" else "LA") if len(pp.buffer) == 0 else "S"
-                for pp in partial_parses]
+        #[print(pp.stack[1]) for pp in partial_parses]
+        prediction = [("RA" if pp.stack[1] == "right" else "LA") if len(pp.buffer) == 0 else "S" for pp in partial_parses]
+        return prediction
 
+class ValueObject():
 
+    def __init__(self, value):
+        self.value = value
+
+    def getValue(self):
+        return self.value
+
+    def setValue(self, value):
+        self.value = value
+
+def testValueObject():
+
+    list1 = [ValueObject(1),ValueObject(2),ValueObject(3)]
+    list2 = [val for val in list1]
+    for idx, val in enumerate(list1):
+        equals = id(list1[idx]) == id(list2[idx])
+        print(equals)
+
+    list1[1].setValue(4)
+    assert list2[1].getValue() == 4
+       
 def test_dependencies(name, deps, ex_deps):
     """Tests the provided dependencies match the expected dependencies"""
     deps = tuple(sorted(deps))
@@ -151,6 +207,7 @@ def test_minibatch_parse():
     print ("minibatch_parse test passed!")
 
 if __name__ == '__main__':
+    #testValueObject()
     test_parse_step()
     test_parse()
     test_minibatch_parse()
