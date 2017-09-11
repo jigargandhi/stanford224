@@ -1,7 +1,7 @@
 import os
 import time
 import tensorflow as tf
-import cPickle
+import _pickle as cPickle
 
 from model import Model
 from q2_initialization import xavier_weight_init
