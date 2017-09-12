@@ -31,7 +31,7 @@ def xavier_weight_init():
 
         shapelist = [i for i in shape]
         epsilon = np.sqrt(6.0)/np.sqrt(sum)
-        out = tf.random_uniform(shapelist,minval = -1*epsilon, maxval = epsilon, dtype=tf.float32)
+        out = tf.Variable(tf.random_uniform(shapelist,minval = -1*epsilon, maxval = epsilon, dtype=tf.float32))
         ### END YOUR CODE
         return out
     # Returns defined initializer function.
